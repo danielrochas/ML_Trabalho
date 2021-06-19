@@ -1,0 +1,324 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d0489301",
+   "metadata": {},
+   "source": [
+    "# Análise de Dados com Métodos de Aprendizado de Máquina"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89814ed2",
+   "metadata": {},
+   "source": [
+    "## Introdução ao Aprendizado de Máquina"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "65a3d121",
+   "metadata": {},
+   "source": [
+    "### Daniel Rocha da Silva, Laura Kubitschek Fiorindo"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea758d9e",
+   "metadata": {},
+   "source": [
+    "Descrição do trabalho: [Descrição.pdf](https://github.com/danielrochas/ML_Trabalho_1/blob/main/Descrição.pdf)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a50402f",
+   "metadata": {},
+   "source": [
+    "### Importação de bibliotecas"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f3ec178a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "from sklearn import datasets, linear_model\n",
+    "from sklearn.preprocessing import StandardScaler\n",
+    "from sklearn.neighbors import KNeighborsClassifier\n",
+    "from sklearn.naive_bayes import GaussianNB\n",
+    "from sklearn.model_selection import cross_val_score"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "10760772",
+   "metadata": {},
+   "source": [
+    "### Problema 1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "28bc0924",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "349bec2f",
+   "metadata": {},
+   "source": [
+    "### Problema 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "51fa7eaf",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "afb0e795",
+   "metadata": {},
+   "source": [
+    "### Problema 3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0f7fe858",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "college_data = pd.read_csv(\"data/College.csv\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "95e33f38",
+   "metadata": {},
+   "source": [
+    "Foi feita a troca da variável *Top10perc* pela variável *Elite*, sendo esta uma variável que assume o valor 0 para valores da variável *Top10perc* no intervalo (-1, 50] e 1 para valores no intervalo (50, 101]."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "212f2e05",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "college_data[\"Elite\"] = pd.cut(college_data[\"Top10perc\"], bins=(-1,50,101), labels = False)\n",
+    "college_data = college_data.drop(columns = {\"Top10perc\"})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f426a18e",
+   "metadata": {},
+   "source": [
+    "Foi feita a troca da variável Private para valores inteiros (Yes = 1; No = 0)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "55b55cc3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "college_data[\"Private\"] = np.where(college_data[\"Private\"] == 'Yes', 1, 0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd8a4fc5",
+   "metadata": {},
+   "source": [
+    "Separação entre *features* e *target*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "db777320",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "features_college = college_data.drop(columns = {\"Inst.Name\", \"Elite\"})\n",
+    "target_college = college_data[\"Elite\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0ef49f2",
+   "metadata": {},
+   "source": [
+    "Foi feita a padronização das *features*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "233b12cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "scaler = StandardScaler()\n",
+    "features_college_scaled = scaler.fit_transform(features_college)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0713855a",
+   "metadata": {},
+   "source": [
+    "Aplicamos o método K-vizinhos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4bf5ef7e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "neigh = KNeighborsClassifier(n_neighbors=5)\n",
+    "neigh.fit(features_college_scaled, target_college);\n",
+    "\n",
+    "# Validação cruzada com método 5-fold\n",
+    "print(\"Dados normalizados:\")\n",
+    "score = cross_val_score(neigh, features_college_scaled, target_college, cv=5, scoring = \"accuracy\")\n",
+    "print(\"Acurácia: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(neigh, features_college_scaled, target_college, cv=5, scoring = \"recall\")\n",
+    "print(\"Recall: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(neigh, features_college_scaled, target_college, cv=5, scoring = \"precision\")\n",
+    "print(\"Precison: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(neigh, features_college_scaled, target_college, cv=5, scoring = \"f1\")\n",
+    "print(\"f1: \", score, \"Média: \", np.mean(score))\n",
+    "\n",
+    "print(\"\\n\")\n",
+    "print(\"Dados originais:\")\n",
+    "score = cross_val_score(neigh, features_college, target_college, cv=5, scoring = \"accuracy\")\n",
+    "print(\"Acurácia: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(neigh, features_college, target_college, cv=5, scoring = \"recall\")\n",
+    "print(\"Recall: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(neigh, features_college, target_college, cv=5, scoring = \"precision\")\n",
+    "print(\"Precison: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(neigh, features_college, target_college, cv=5, scoring = \"f1\")\n",
+    "print(\"f1: \", score, \"Média: \", np.mean(score))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e269eba0",
+   "metadata": {},
+   "source": [
+    "Como podemos ver com os resultados acima conseguimos resultados melhores com a normalização das *features*. \n",
+    "\n",
+    "Podemos perceber também que a medida de acurácia pode ser enganosa já que, neste caso, temos classes bem desbalanceadas. Por isso as medidas *recall*, *precision* e *f1* são mais interessantes para a situação."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e772742d",
+   "metadata": {},
+   "source": [
+    "Aplicamos Naive Bayes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8afa01c2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gaussian_nb = GaussianNB()\n",
+    "gaussian_nb.fit(features_college_scaled, target_college);\n",
+    "\n",
+    "# Validação cruzada com método 5-fold\n",
+    "score = cross_val_score(gaussian_nb, features_college, target_college, cv=5, scoring = \"accuracy\")\n",
+    "print(\"Acurácia: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(gaussian_nb, features_college, target_college, cv=5, scoring = \"recall\")\n",
+    "print(\"Recall: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(gaussian_nb, features_college, target_college, cv=5, scoring = \"precision\")\n",
+    "print(\"Precison: \", score, \"Média: \", np.mean(score))\n",
+    "score = cross_val_score(gaussian_nb, features_college, target_college, cv=5, scoring = \"f1\")\n",
+    "print(\"f1: \", score, \"Média: \", np.mean(score))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0baa6ee",
+   "metadata": {},
+   "source": [
+    "Com o *Naive Bayes Gaussiano* não precisamos normalizar as *features*.\n",
+    "\n",
+    "Podemos pereber com as métricas apresentadas acima que os resultados obtidos com o método de *Naive Bayes* foram melhores pela métrica *recall*. Esta métrica representa a proporção de classifições 1 feitas pelo modelo dentre todas as verdadeiras classificações 1 nos dados, essa medida, em geral é muito importante e um incremento nela é algo significativo. Já na métrica *precision* tivemos uma piora em relação ao modelo k-vizinhos. Esta métrica representa a proporção de classificações 1 feitas pelo modelo que realmente são classificações 1 nos dados."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c76cc6ff",
+   "metadata": {},
+   "source": [
+    "### Problema 4"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "98637b78",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# split train, test for calibration\n",
+    "X_train, X_test, y_train, y_test, sw_train, sw_test = \\\n",
+    "    train_test_split(X, y, sample_weight, test_size=0.9, random_state=42)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca3fa780",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
